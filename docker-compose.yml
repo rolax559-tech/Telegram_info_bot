@@ -1,0 +1,38 @@
+version: "3.8"
+
+services:
+  telegram_bot:
+    build: .
+    container_name: telegram_lookup_bot
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - USERS_LOOKUP_API_BASE_URL=${USERS_LOOKUP_API_BASE_URL}
+      - USERS_LOOKUP_API_KEY=${USERS_LOOKUP_API_KEY}
+      - ADMIN_IDS=${ADMIN_IDS}
+      - FORCE_JOIN_CHANNEL_ID=${FORCE_JOIN_CHANNEL_ID}
+      - BACKUP_CHANNEL_ID=${BACKUP_CHANNEL_ID}
+    restart: always
+    networks:
+      - bot_network
+
+  admin_panel:
+    image: python:3.11-slim
+    container_name: admin_panel
+    working_dir: /app
+    command: python admin_panel.py
+    environment:
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+    volumes:
+      - .:/app
+    ports:
+      - "5000:5000"
+    restart: always
+    networks:
+      - bot_network
+
+networks:
+  bot_network:
+    driver: bridge
